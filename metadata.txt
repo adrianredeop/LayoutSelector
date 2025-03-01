@@ -1,12 +1,14 @@
 [general]
 name=LayoutSelector
-qgisMinimumVersion=3.0
-description=Ein QGIS-Plugin zum Laden von QPT-Layoutvorlagen
+description=Load and manage QPT layout templates in QGIS.
+about=The LayoutSelector plugin adds an icon to the QGIS toolbar. When clicked, it opens a file dialog that allows users to select a QPT layout template. The selected layout is then loaded into QGIS, and the current map extent is applied automatically. This plugin enhances map printing and layout management in QGIS.
 version=1.0
+qgisMinimumVersion=3.10
 author=adrian
-email=Adrian.poeder@gmail.com
+email=adrian.poeder@gmail.com
 category=Layout
-icon=icon.png
+license=MIT
+tags=layout,plugin,qgis,qpt,print
+repository=https://github.com/adrianredeop/LayoutSelector
 homepage=https://github.com/adrianredeop/LayoutSelector
-tracker=https://github.com/adrianredeop//LayoutSelector/issues
-repository=https:https://github.com/adrianredeop/LayoutSelector
+tracker=https://github.com/adrianredeop/LayoutSelector/issues
