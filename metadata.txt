@@ -1,0 +1,12 @@
+[general]
+name=LayoutSelector
+qgisMinimumVersion=3.0
+description=Ein QGIS-Plugin zum Laden von QPT-Layoutvorlagen
+version=1.0
+author=adrian
+email=Adrian.poeder@gmail.com
+category=Layout
+icon=icon.png
+homepage=https://github.com/adrianredeop/LayoutSelector
+tracker=https://github.com/adrianredeop//LayoutSelector/issues
+repository=https:https://github.com/adrianredeop/LayoutSelector
