@@ -1,1 +1,85 @@
+from PyQt5.QtWidgets import QAction, QFileDialog
+from qgis.core import QgsProject, QgsPrintLayout, QgsReadWriteContext, QgsLayoutItemMap
+from qgis.utils import iface
+from PyQt5.QtXml import QDomDocument
+import os
 
+class LayoutSelector:
+    def __init__(self, iface):
+        """Constructor"""
+        self.iface = iface
+        self.action = None
+
+    def initGui(self):
+        """Initialize the GUI elements."""
+        self.action = QAction("Load Layout", self.iface.mainWindow())
+        self.action.triggered.connect(self.run)
+        self.iface.addToolBarIcon(self.action)
+        self.iface.addPluginToMenu("LayoutSelector", self.action)
+
+    def unload(self):
+        """Removes the plugin menu and toolbar icon."""
+        self.iface.removeToolBarIcon(self.action)
+        self.iface.removePluginMenu("LayoutSelector", self.action)
+
+    def run(self):
+        """Runs the main function to select and load a layout."""
+        template_source = self.select_qpt_file()
+        if template_source:
+            self.load_qpt_layout(template_source)
+        else:
+            print("No template selected. Please choose a QPT file.")
+
+    def select_qpt_file(self):
+        """ Open file dialog to let user select a QPT file """
+        file_dialog = QFileDialog()
+        file_dialog.setNameFilter("QGIS Layout Templates (*.qpt)")
+        file_dialog.setWindowTitle("Select a QPT Layout File")
+
+        if file_dialog.exec_():
+            return file_dialog.selectedFiles()[0]
+        return None
+
+    def load_qpt_layout(self, template_source):
+        """ Load the selected QPT layout into QGIS """
+        if not template_source or not os.path.exists(template_source):
+            print("No valid template selected.")
+            return
+        
+        print(f"Loading layout from: {template_source}")
+        
+        project = QgsProject.instance()
+        layout_manager = project.layoutManager()
+        layout_name = os.path.basename(template_source).replace('.qpt', '')
+        
+        # Remove any existing layout with the same name
+        existing_layouts = layout_manager.layouts()
+        for layout in existing_layouts:
+            if layout.name() == layout_name:
+                layout_manager.removeLayout(layout)
+                print(f"Removed existing layout: {layout_name}")
+        
+        # Create a new print layout and store it in a persistent reference
+        new_layout = QgsPrintLayout(project)
+        new_layout.initializeDefaults()
+        new_layout.setName(layout_name)
+        layout_manager.addLayout(new_layout)
+        
+        # Load the QPT template
+        with open(template_source, 'r', encoding='utf-8') as template_file:
+            template_content = template_file.read()
+        document = QDomDocument()
+        document.setContent(template_content)
+        context = QgsReadWriteContext()
+        new_layout.loadFromTemplate(document, context)
+        
+        # Adjust the map extent to match the current view
+        items = new_layout.items()
+        for item in items:
+            if isinstance(item, QgsLayoutItemMap):
+                item.setExtent(self.iface.mapCanvas().extent())
+                print("Updated map extent to match the current view.")
+        
+        # Open the layout in designer
+        iface.openLayoutDesigner(new_layout)
+        print("Layout successfully loaded and displayed in QGIS.")
